@@ -14,6 +14,17 @@ resource "aws_security_group" "mongodb" {
       prefix_list_ids  = []
       security_groups  = []
       self             = false
+    },
+    {
+      description      = "SSH"
+      from_port        = 22
+      to_port          = 22
+      protocol         = "tcp"
+      cidr_blocks      = local.ALL_CIDR
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
     }
   ]
 
@@ -41,8 +52,8 @@ resource "aws_spot_instance_request" "mongodb" {
   instance_type          = var.MONGODB_INSTANCE_TYPE
   vpc_security_group_ids = [aws_security_group.mongodb.id]
   wait_for_fulfillment   = true
-  subnet_id              = data.terraform_remote_state.vpc.outputs.PRIVATE_SUBNET_IDS[0]
-  tags  = {
+  subnet_id              = data.terraform_remote_state.vpc.outputs.PRIVATE_SUBNETS_IDS[0]
+  tags = {
     Name = "mongodb-${var.ENV}"
   }
 }
@@ -55,7 +66,7 @@ resource "aws_ec2_tag" "mongodb" {
 
 resource "aws_route53_record" "mongodb" {
   zone_id = data.terraform_remote_state.vpc.outputs.INTERNAL_HOSTEDZONE_ID
-  name    = "mongodb_${var.ENV}"
+  name    = "mongodb-${var.ENV}"
   type    = "A"
   ttl     = "300"
   records = [aws_spot_instance_request.mongodb.private_ip]
