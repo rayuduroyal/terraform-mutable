@@ -43,7 +43,7 @@ resource "aws_spot_instance_request" "mongodb" {
   wait_for_fulfillment   = true
   subnet_id              = data.terraform_remote_state.vpc.outputs.PRIVATE_SUBNET_IDS[0]
   tags  = {
-    value = "mongodb-${var.ENV}"
+    Name = "mongodb-${var.ENV}"
   }
 }
 
